@@ -1,4 +1,9 @@
 .DS_STORE
+.env
+*.pyc
+__pycache__/
+.venv/
+postgres_data/
 
 /dist/
 /bazel-out

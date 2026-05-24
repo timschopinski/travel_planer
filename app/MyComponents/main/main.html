@@ -1,0 +1,51 @@
+<div class="container py-5">
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" routerLink="">Angular</a>
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavId">
+                <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="home">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="directives">Directives</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="comp_communication">Components Communication</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="apiWeather">Api Weather</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="crud">CRUD</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row justify-content-center align-items-center g-2 my-3">
+        <div class="col-1"></div>
+        <div class="col-10">
+
+            <div class="card border-secondary shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Angular 2026</h4>
+                    <router-outlet />
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>

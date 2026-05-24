@@ -1,0 +1,39 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+
+    <h4>{{ editingId ? 'Update Task' : 'New Task' }}</h4>
+
+    <input class="form-control m-2" placeholder="title" formControlName="title">
+
+    <div>
+        <label>Description</label>
+        <input class="form-control m-2" formControlName="description">
+    </div>
+
+
+    <select class="form-select m-2" formControlName="priority">
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+    </select>
+
+    <select class="form-select m-2" formControlName="status">
+        <option value="new">new</option>
+        <option value="in_progress">in_progress</option>
+        <option value="done">done</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary m-2">
+        {{ editingId ? 'Update' : 'Add' }}
+    </button>
+
+    @if(editingId){
+    <button type="button" class="btn btn-primary m-2" (click)="reset()">
+        Cancel
+    </button>
+    }
+
+
+
+
+
+</form>

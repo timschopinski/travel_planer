@@ -1,0 +1,53 @@
+<div class="card border-secondary m-3">
+    <div class="card-body">
+        <h4 class="card-title">Supabase CRUD</h4>
+
+         <app-task-form [task]="selectedTask" (saved)="onSaved()" (cancel)="selectedTask=null"></app-task-form>
+       
+       
+       
+        
+        <hr>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(task of tasks$ | async; track task.id){
+                <tr>
+                    <td>{{task.id}}</td>
+                    <td>{{task.title}}</td>
+                    <td>{{task.description}}</td>
+                    <td>{{task.priority}}</td>
+                    <td>{{task.status}}</td>
+
+                    <td>
+                        <button (click)="delete(task.id!)" type="button" class="btn btn-danger m-2">
+                            Delete
+                        </button>
+
+                        <button (click)="update(task)" type="button" class="btn btn-success m-2">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+        </table>
+
+
+
+
+
+    </div>
+</div>

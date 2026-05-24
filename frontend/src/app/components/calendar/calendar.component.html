@@ -1,0 +1,276 @@
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <i class="bi bi-airplane-fill logo-icon"></i>
+      <span class="logo-text">Travel<br>Planner</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="currentView === 'calendar'" (click)="setView('calendar')">
+        <i class="bi bi-calendar3"></i>
+        <span>Calendar</span>
+      </a>
+      <a class="nav-item" [class.active]="currentView === 'trips'" (click)="setView('trips')">
+        <i class="bi bi-map"></i>
+        <span>My Trips</span>
+      </a>
+      <a class="nav-item" [class.active]="currentView === 'expenses'" (click)="setView('expenses')">
+        <i class="bi bi-bar-chart"></i>
+        <span>Expenses</span>
+      </a>
+      <a class="nav-item" [class.active]="currentView === 'settings'" (click)="setView('settings')">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="trip-count">
+        <i class="bi bi-suitcase2"></i>
+        <span>{{ trips.length }} trip{{ trips.length !== 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- ── CALENDAR VIEW ── -->
+    @if (currentView === 'calendar') {
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="btn-today" (click)="todayWeek()">Today</button>
+          <button class="btn-nav" (click)="prevWeek()">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="btn-nav" (click)="nextWeek()">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+          <h2 class="week-label">{{ weekRangeLabel }}</h2>
+        </div>
+        <div class="toolbar-right">
+          <span class="view-badge"><i class="bi bi-calendar-week"></i> Week</span>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        @for (day of days; track day.dateStr) {
+          <div class="day-header" [class.today-header]="day.isToday">
+            <span class="day-name">{{ day.dayName }}</span>
+            <span class="day-number" [class.today-badge]="day.isToday">{{ day.label }}</span>
+          </div>
+        }
+        @for (day of days; track day.dateStr) {
+          <div class="day-cell" [class.today-cell]="day.isToday" (click)="openNewTrip(day)">
+            @for (trip of day.trips; track trip.id) {
+              <div
+                class="trip-card"
+                [style.background]="getTripColor(trip)"
+                (click)="openEditTrip(trip, $event)"
+              >
+                <div class="trip-card-title">
+                  <span class="flag">{{ weatherService.getWeatherEmoji(trip.weather_code) }}</span>
+                  {{ trip.city }}, {{ trip.country }}
+                </div>
+                @if (trip.weather_temp !== null) {
+                  <div class="trip-card-weather">{{ trip.weather_temp }}°C · {{ trip.weather_description }}</div>
+                }
+                @if (trip.cost !== null) {
+                  <div class="trip-card-cost"><i class="bi bi-wallet2"></i> {{ trip.cost | number:'1.0-0' }} PLN</div>
+                }
+              </div>
+            }
+            <button class="add-btn" (click)="openNewTrip(day); $event.stopPropagation()">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── MY TRIPS VIEW ── -->
+    @if (currentView === 'trips') {
+      <div class="view-header">
+        <h2 class="view-title"><i class="bi bi-map"></i> My Trips</h2>
+      </div>
+      <div class="view-body">
+        @if (trips.length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-suitcase2 empty-icon"></i>
+            <p>No trips yet. Go to Calendar and click a day to add one.</p>
+          </div>
+        }
+
+        @if (upcomingTrips.length > 0) {
+          <h5 class="section-label">Upcoming</h5>
+          <div class="trip-list">
+            @for (trip of upcomingTrips; track trip.id) {
+              <div class="trip-row" (click)="openEditFromList(trip)">
+                <div class="trip-row-color" [style.background]="getTripColor(trip)"></div>
+                <div class="trip-row-body">
+                  <div class="trip-row-title">
+                    {{ weatherService.getWeatherEmoji(trip.weather_code) }}
+                    {{ trip.city }}, {{ trip.country }}
+                  </div>
+                  <div class="trip-row-meta">
+                    <span><i class="bi bi-calendar3"></i> {{ formatDate(trip.date) }}</span>
+                    @if (trip.cost !== null) {
+                      <span><i class="bi bi-wallet2"></i> {{ trip.cost | number:'1.0-0' }} PLN</span>
+                    }
+                    @if (trip.weather_temp !== null) {
+                      <span>{{ trip.weather_temp }}°C · {{ trip.weather_description }}</span>
+                    }
+                  </div>
+                  @if (trip.notes) {
+                    <div class="trip-row-notes">{{ trip.notes }}</div>
+                  }
+                </div>
+                <i class="bi bi-chevron-right trip-row-arrow"></i>
+              </div>
+            }
+          </div>
+        }
+
+        @if (pastTrips.length > 0) {
+          <h5 class="section-label mt-4">Past</h5>
+          <div class="trip-list">
+            @for (trip of pastTrips; track trip.id) {
+              <div class="trip-row past" (click)="openEditFromList(trip)">
+                <div class="trip-row-color" [style.background]="getTripColor(trip)"></div>
+                <div class="trip-row-body">
+                  <div class="trip-row-title">
+                    {{ weatherService.getWeatherEmoji(trip.weather_code) }}
+                    {{ trip.city }}, {{ trip.country }}
+                  </div>
+                  <div class="trip-row-meta">
+                    <span><i class="bi bi-calendar3"></i> {{ formatDate(trip.date) }}</span>
+                    @if (trip.cost !== null) {
+                      <span><i class="bi bi-wallet2"></i> {{ trip.cost | number:'1.0-0' }} PLN</span>
+                    }
+                    @if (trip.weather_temp !== null) {
+                      <span>{{ trip.weather_temp }}°C · {{ trip.weather_description }}</span>
+                    }
+                  </div>
+                </div>
+                <i class="bi bi-chevron-right trip-row-arrow"></i>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── EXPENSES VIEW ── -->
+    @if (currentView === 'expenses') {
+      <div class="view-header">
+        <h2 class="view-title"><i class="bi bi-bar-chart"></i> Expenses</h2>
+      </div>
+      <div class="view-body">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#eff6ff;color:#3b82f6"><i class="bi bi-suitcase2"></i></div>
+            <div class="stat-value">{{ trips.length }}</div>
+            <div class="stat-label">Total Trips</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4;color:#10b981"><i class="bi bi-wallet2"></i></div>
+            <div class="stat-value">{{ totalCost | number:'1.0-0' }} PLN</div>
+            <div class="stat-label">Total Spent</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fefce8;color:#f59e0b"><i class="bi bi-graph-up"></i></div>
+            <div class="stat-value">
+              {{ tripsWithCost.length > 0 ? ((totalCost / tripsWithCost.length) | number:'1.0-0') : 0 }} PLN
+            </div>
+            <div class="stat-label">Avg per Trip</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fdf4ff;color:#a855f7"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-value">{{ upcomingTrips.length }}</div>
+            <div class="stat-label">Upcoming</div>
+          </div>
+        </div>
+
+        @if (tripsWithCost.length > 0) {
+          <h5 class="section-label mt-4">Cost Breakdown</h5>
+          <div class="expense-list">
+            @for (trip of tripsWithCost; track trip.id) {
+              <div class="expense-row">
+                <div class="expense-dot" [style.background]="getTripColor(trip)"></div>
+                <div class="expense-info">
+                  <span class="expense-name">{{ trip.city }}, {{ trip.country }}</span>
+                  <span class="expense-date">{{ formatDate(trip.date) }}</span>
+                </div>
+                <div class="expense-bar-wrap">
+                  <div
+                    class="expense-bar"
+                    [style.width.%]="(trip.cost! / tripsWithCost[0].cost!) * 100"
+                    [style.background]="getTripColor(trip)"
+                  ></div>
+                </div>
+                <span class="expense-amount">{{ trip.cost | number:'1.0-0' }} PLN</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <i class="bi bi-wallet2 empty-icon"></i>
+            <p>No trip costs recorded yet.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── SETTINGS VIEW ── -->
+    @if (currentView === 'settings') {
+      <div class="view-header">
+        <h2 class="view-title"><i class="bi bi-gear"></i> Settings</h2>
+      </div>
+      <div class="view-body">
+        <div class="settings-card">
+          <div class="settings-section-title">About</div>
+          <div class="settings-row">
+            <span class="settings-key">App</span>
+            <span class="settings-val">Travel Planner</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-key">Backend</span>
+            <span class="settings-val">FastAPI + PostgreSQL</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-key">Frontend</span>
+            <span class="settings-val">Angular 19</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-key">Weather API</span>
+            <span class="settings-val">open-meteo.com (free, no key)</span>
+          </div>
+        </div>
+
+        <div class="settings-card mt-3">
+          <div class="settings-section-title">Data</div>
+          <div class="settings-row">
+            <span class="settings-key">Trips stored</span>
+            <span class="settings-val">{{ trips.length }}</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-key">Total cost</span>
+            <span class="settings-val">{{ totalCost | number:'1.0-0' }} PLN</span>
+          </div>
+        </div>
+      </div>
+    }
+
+  </main>
+</div>
+
+@if (showModal) {
+  <app-trip-modal
+    [selectedDate]="selectedDate"
+    [editTrip]="editTrip"
+    (saved)="onSaved()"
+    (deleted)="onDeleted()"
+    (closed)="onClosed()"
+  />
+}

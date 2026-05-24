@@ -1,0 +1,94 @@
+<div class="modal-backdrop" (click)="close()"></div>
+
+<div class="modal-panel">
+  <div class="modal-header">
+    <div>
+      <div class="modal-date">{{ formattedDate }}</div>
+      <h5 class="modal-title">{{ editTrip ? 'Edit Trip' : 'New Trip' }}</h5>
+    </div>
+    <button class="btn-close-custom" (click)="close()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="mb-3">
+      <label class="form-label">Country <span class="required">*</span></label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-globe2"></i></span>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="country"
+          placeholder="e.g. France"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">City <span class="required">*</span></label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-building"></i></span>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="city"
+          placeholder="e.g. Paris"
+          (blur)="onCityBlur()"
+        />
+      </div>
+      @if (weatherLoading) {
+        <div class="weather-preview loading">
+          <span class="spinner"></span> Fetching weather…
+        </div>
+      }
+      @if (weatherPreview && !weatherLoading) {
+        <div class="weather-preview">{{ weatherPreview }}</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Trip Cost (PLN)</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="cost"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Notes</label>
+      <textarea
+        class="form-control"
+        [(ngModel)]="notes"
+        rows="3"
+        placeholder="Any notes about your trip…"
+      ></textarea>
+    </div>
+
+    @if (error) {
+      <div class="alert alert-danger py-2">{{ error }}</div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    @if (editTrip) {
+      <button class="btn btn-danger me-auto" (click)="delete()" [disabled]="loading">
+        <i class="bi bi-trash"></i> Delete
+      </button>
+    }
+    <button class="btn btn-secondary" (click)="close()" [disabled]="loading">Cancel</button>
+    <button class="btn btn-primary" (click)="save()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ editTrip ? 'Update' : 'Save' }}
+    </button>
+  </div>
+</div>
